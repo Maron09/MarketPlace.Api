@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Marketplace.Modules.Identity\Marketplace.Modules.Identity.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Vendors\Marketplace.Modules.Vendors.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Catalog\Marketplace.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Inventory\Marketplace.Modules.Inventory.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Cart\Marketplace.Modules.Cart.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Orders\Marketplace.Modules.Orders.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Payments\Marketplace.Modules.Payments.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Reviews\Marketplace.Modules.Reviews.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Notifications\Marketplace.Modules.Notifications.csproj" />
+    <ProjectReference Include="..\Marketplace.Infrastructure.Shared\Marketplace.Infrastructure.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Marketplace.SharedKernel\Marketplace.SharedKernel.csproj" />
+    <ProjectReference Include="..\Marketplace.Infrastructure.Shared\Marketplace.Infrastructure.Shared.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Orders\Marketplace.Modules.Orders.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Identity\Marketplace.Modules.Identity.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
