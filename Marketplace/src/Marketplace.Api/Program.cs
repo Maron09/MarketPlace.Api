@@ -1,4 +1,15 @@
+using Marketplace.Infrastructure.Shared.Persistence;
+using Marketplace.Modules.Identity;
+using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddIdentityModule();
+
+builder.Services.AddDbContext<MarketplaceDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("Marketplace")));
 
 // Add services to the container.
 
