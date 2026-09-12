@@ -26,5 +26,5 @@ namespace Marketplace.Modules.Identity.Domain
         public void Deactivate() => IsActive = false;
     }
 
-    internal enum UserRole { Customer, Vendor, Admin }
+    public enum UserRole { Customer, Vendor, Admin }
 }
