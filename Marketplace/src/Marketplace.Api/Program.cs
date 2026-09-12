@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddIdentityModule(builder.Configuration);
+builder.Services.AddVendorsModule();
 
 builder.Services.AddDbContext<MarketplaceDbContext>(options =>
     options.UseNpgsql(
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<MarketplaceDbContext>(options =>
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(IdentityModuleExtensions).Assembly)
+    .AddApplicationPart(typeof(VendorModuleExtensions).Assembly)
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -1,5 +1,6 @@
 using Marketplace.Modules.Identity.Application;
 using Marketplace.Modules.Identity.Domain;
+using Marketplace.SharedKernel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,25 +22,25 @@ namespace Marketplace.Modules.Identity.Api
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register ([FromBody] RegisterRequestDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto request, CancellationToken cancellationToken)
         {
             var result = await _registerUserService.RegisterAsync(
             new RegisterUserRequest(request.Email, request.Password, request.Role),
             cancellationToken);
 
-            if (!result.Succeeded)
-                return Conflict(new  { error = result.ErrorMessage });
+            if (!result.IsSuccess)
+                return this.ToActionResult(result);
             
-            return StatusCode(StatusCodes.Status201Created, new { userId = result.UserId });
+            return StatusCode(StatusCodes.Status201Created, new { userId = result.Value });
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request, CancellationToken cancellationToken)
         {
             var result = await _loginService.LoginAsync(new LoginRequest(request.Email, request.Password), cancellationToken);
-            if (!result.Succeeded)
-                return Unauthorized(new { error = result.ErrorMessage });
+            if (!result.IsSuccess)
+                return this.ToActionResult(result);
             
-            return Ok(new { accessToken = result.AccessToken });
+            return Ok(new { accessToken = result.Value });
         }
     }
 
