@@ -1,1 +1,1 @@
-<!-- dotnet run --project src/Marketplace.Api -->
+<!-- dotnet watch run --project src/Marketplace.Api -->

@@ -4,18 +4,20 @@ using Marketplace.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
 
 
-
-public static class VendorModuleExtensions
+namespace Marketplace.Modules.Vendors
 {
-    public static IServiceCollection AddVendorsModule(this IServiceCollection services)
+    public static class VendorModuleExtensions
     {
-        services.AddSingleton<IModuleDbContextConfigurator, VendorsDbContextConfigurator>();
-        
-        services.AddScoped<IVendorRepository, VendorRepository>();
-        services.AddScoped(sp => new VendorApplicationService(
-            sp.GetRequiredService<IVendorRepository>()));
+        public static IServiceCollection AddVendorsModule(this IServiceCollection services)
+        {
+            services.AddSingleton<IModuleDbContextConfigurator, VendorsDbContextConfigurator>();
+            
+            services.AddScoped<IVendorRepository, VendorRepository>();
+            services.AddScoped(sp => new VendorApplicationService(
+                sp.GetRequiredService<IVendorRepository>()));
 
-        return services;
+            return services;
 
+        }
     }
 }

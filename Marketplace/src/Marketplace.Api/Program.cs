@@ -1,5 +1,10 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Marketplace.Infrastructure.Shared.Persistence;
+using Marketplace.Modules.Catalog;
+using Marketplace.Modules.Catalog.Api;
 using Marketplace.Modules.Identity;
+using Marketplace.Modules.Vendors;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -7,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddVendorsModule();
+builder.Services.AddCatalogModule();
 
 builder.Services.AddDbContext<MarketplaceDbContext>(options =>
     options.UseNpgsql(
@@ -17,9 +23,12 @@ builder.Services.AddDbContext<MarketplaceDbContext>(options =>
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(IdentityModuleExtensions).Assembly)
     .AddApplicationPart(typeof(VendorModuleExtensions).Assembly)
+    .AddApplicationPart(typeof(CatalogModuleExtensions).Assembly)
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductRequestValidator>();
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

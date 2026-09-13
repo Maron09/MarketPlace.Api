@@ -25,7 +25,7 @@ namespace Marketplace.Modules.Vendors.Application
         }
 
         public async Task<Result> ApproveAsync(Guid vendorId, Guid reviewerId, CancellationToken cancellationToken)
-        => await ApplyTransitionAsync(vendorId, v => v.Approve(reviewerId), cancellationToken);
+            => await ApplyTransitionAsync(vendorId, v => v.Approve(reviewerId), cancellationToken);
 
         public async Task<Result> RejectAsync(Guid vendorId, Guid reviewerId, CancellationToken cancellationToken)
             => await ApplyTransitionAsync(vendorId, v => v.Reject(reviewerId), cancellationToken);
