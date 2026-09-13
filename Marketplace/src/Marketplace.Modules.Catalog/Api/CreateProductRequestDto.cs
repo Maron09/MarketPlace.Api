@@ -1,4 +1,4 @@
 namespace Marketplace.Modules.Catalog.Api
 {
-    public sealed record CreateProductRequestDto(Guid VendorId, string Name, string? Description, decimal Price);
+    public sealed record CreateProductRequestDto(string Name, string? Description, decimal Price);
 }

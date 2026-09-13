@@ -7,9 +7,6 @@ namespace Marketplace.Modules.Catalog.Api
     {
         public CreateProductRequestValidator()
         {
-            RuleFor(x => x.VendorId)
-                .NotEmpty();
-
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Product name is required.")
                 .MaximumLength(200);

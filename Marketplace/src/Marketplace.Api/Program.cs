@@ -6,6 +6,9 @@ using Marketplace.Modules.Catalog.Api;
 using Marketplace.Modules.Identity;
 using Marketplace.Modules.Vendors;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +21,27 @@ builder.Services.AddDbContext<MarketplaceDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("Marketplace")));
 
-// Add services to the container.
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var signingKey = builder.Configuration["Jwt:SigningKey"]
+    ?? throw new InvalidOperationException("Jwt:SigningKey is not configured.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSection["Audience"],
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(IdentityModuleExtensions).Assembly)
@@ -40,7 +63,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
