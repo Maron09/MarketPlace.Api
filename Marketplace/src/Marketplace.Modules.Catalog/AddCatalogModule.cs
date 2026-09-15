@@ -13,7 +13,16 @@ namespace Marketplace.Modules.Catalog
             services.AddSingleton<IModuleDbContextConfigurator, CatalogDbContextConfigurator>();
 
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+
             services.AddScoped(sp => new CatalogApplicationService(
+                sp.GetRequiredService<IProductRepository>()
+            ));
+
+            services.AddScoped(sp => new CategoryApplicationService(
+                sp.GetRequiredService<ICategoryRepository>(),
+                sp.GetRequiredService<IProductCategoryRepository>(),
                 sp.GetRequiredService<IProductRepository>()
             ));
 

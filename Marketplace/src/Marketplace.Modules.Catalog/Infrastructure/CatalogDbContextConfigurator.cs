@@ -8,6 +8,8 @@ namespace Marketplace.Modules.Catalog.Infrastructure
         public void Configure(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ProductEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductCategoryEntityConfiguration());
         }
     }
 }

@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Marketplace.Modules.Identity.Application;
+using Marketplace.Modules.Identity.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,6 +62,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+}
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<MarketplaceDbContext>();
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    await AdminSeeder.SeedAsync(dbContext, passwordHasher, "admin@marketplace.local", "AdminPass123!"); // Note: find a safer way to implement in production
 }
 
 app.UseHttpsRedirection();

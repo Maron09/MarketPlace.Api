@@ -17,10 +17,12 @@ namespace Marketplace.Modules.Catalog.Api
     public sealed class ProductController : ControllerBase
     {
         private readonly CatalogApplicationService _catalogApplicationService;
+        private readonly CategoryApplicationService _categoryApplicationService;
 
-        public ProductController(CatalogApplicationService catalogApplicationService)
+        public ProductController(CatalogApplicationService catalogApplicationService, CategoryApplicationService categoryApplicationService)
         {
             _catalogApplicationService = catalogApplicationService;
+            _categoryApplicationService = categoryApplicationService;
         }
 
         [HttpGet]
@@ -79,6 +81,21 @@ namespace Marketplace.Modules.Catalog.Api
         {
             var products = await _catalogApplicationService.GetByVendorIdAsync(GetAuthenticatedUserId(), page, pageSize, cancellationToken);
             return Ok(products);
+        }
+        [Authorize(Roles = "Vendor")]
+        [HttpPost("{productId:guid}/categories/{categoryId:guid}")]
+        public async Task<IActionResult> AssignCategory(Guid productId, Guid categoryId, CancellationToken cancellationToken)
+        {
+            var result = await _categoryApplicationService.AssignToProductAsync(productId, categoryId, GetAuthenticatedUserId(), cancellationToken);
+            return result.IsSuccess ? NoContent() : this.ToActionResult(result);
+        }
+
+        [Authorize(Roles = "Vendor")]
+        [HttpDelete("{productId:guid}/categories/{categoryId:guid}")]
+        public async Task<IActionResult> RemoveCategory(Guid productId, Guid categoryId, CancellationToken cancellationToken)
+        {
+            var result = await _categoryApplicationService.RemoveFromProductAsync(productId, categoryId, GetAuthenticatedUserId(), cancellationToken);
+            return result.IsSuccess ? NoContent() : this.ToActionResult(result);
         }
 
         private Guid GetAuthenticatedUserId()

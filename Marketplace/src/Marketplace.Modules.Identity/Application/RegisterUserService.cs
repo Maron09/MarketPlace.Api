@@ -19,6 +19,10 @@ namespace Marketplace.Modules.Identity.Application
 
         public async Task<Result<Guid>> RegisterAsync(RegisterUserRequest request, CancellationToken cancellationToken)
         {
+            if (request.Role == UserRole.Admin)
+            {
+                return Result<Guid>.Failure("Cannot self-register as Admin.", ErrorType.Validation);
+            }
             var normalizedEmail = request.Email.Trim().ToLowerInvariant();
             if (await _userRepository.EmailExistsAsync(normalizedEmail, cancellationToken))
             {
