@@ -10,6 +10,7 @@ namespace Marketplace.Modules.Catalog.Infrastructure
             modelBuilder.ApplyConfiguration(new ProductEntityConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ProductCategoryEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductImageEntityConfiguration());
         }
     }
 }

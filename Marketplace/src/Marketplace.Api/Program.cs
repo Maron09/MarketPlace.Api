@@ -11,13 +11,16 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Marketplace.Modules.Identity.Application;
 using Marketplace.Modules.Identity.Infrastructure;
+using Marketplace.Modules.Catalog.Infrastructure;
+using Amazon.S3;
+using Microsoft.Extensions.Options;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddVendorsModule();
-builder.Services.AddCatalogModule();
+builder.Services.AddCatalogModule(builder.Configuration);
 
 builder.Services.AddDbContext<MarketplaceDbContext>(options =>
     options.UseNpgsql(
@@ -70,6 +73,18 @@ if (app.Environment.IsDevelopment())
     var dbContext = scope.ServiceProvider.GetRequiredService<MarketplaceDbContext>();
     var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
     await AdminSeeder.SeedAsync(dbContext, passwordHasher, "admin@marketplace.local", "AdminPass123!"); // Note: find a safer way to implement in production
+
+    try
+    {
+        var s3Client = scope.ServiceProvider.GetRequiredService<IAmazonS3>();
+        var minioSettings = scope.ServiceProvider.GetRequiredService<IOptions<MinioSetings>>();
+        await BucketInitializer.EnsureBucketExistsAsync(s3Client, minioSettings);
+        Console.WriteLine("MinIO bucket check completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"MinIO bucket initialization FAILED: {ex}");
+    }
 }
 
 app.UseHttpsRedirection();

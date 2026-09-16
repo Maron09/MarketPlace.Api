@@ -98,6 +98,30 @@ namespace Marketplace.Modules.Catalog.Api
             return result.IsSuccess ? NoContent() : this.ToActionResult(result);
         }
 
+        [Authorize(Roles = "Vendor")]
+        [HttpPost("{productId:guid}/images")]
+        public async Task<IActionResult> UploadImage(Guid productId, IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file is null || file.Length == 0)
+            {
+                return BadRequest(new { error = "No file was provided." });
+            }
+
+            await using var stream = file.OpenReadStream();
+
+            var result = await _catalogApplicationService.AddImageAsync(
+                productId,
+                GetAuthenticatedUserId(),
+                stream,
+                file.FileName,
+                file.Length,
+                cancellationToken);
+            Console.WriteLine($"Received file: {file.FileName}, ContentType: '{file.ContentType}', Length: {file.Length}");
+            return result.IsSuccess
+                ? StatusCode(StatusCodes.Status201Created, new { imageId = result.Value })
+                : this.ToActionResult(result);
+        }
+
         private Guid GetAuthenticatedUserId()
             => Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)
                 ?? throw new InvalidOperationException("Authenticated request missing sub claim."));

@@ -11,5 +11,19 @@ services:
     volumes:
       - marketplace_pg_data:/var/lib/postgresql/data
 
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: marketplace-minio
+    environment:
+      MINIO_ROOT_USER: marketplace_minio
+      MINIO_ROOT_PASSWORD: marketplace_minio_password
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    volumes:
+      - marketplace_minio_data:/data
+
 volumes:
   marketplace_pg_data:
+  marketplace_minio_data:
