@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Marketplace.Modules.Identity.Application;
 using Marketplace.Modules.Identity.Domain;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 
 namespace Marketplace.Modules.Identity
@@ -21,12 +22,15 @@ namespace Marketplace.Modules.Identity
 
             services.AddScoped(sp => new RegisterUserService(
                 sp.GetRequiredService<IUserRepository>(),
-                sp.GetRequiredService<IPasswordHasher>()));
+                sp.GetRequiredService<IPasswordHasher>(),
+                sp.GetRequiredService<ILogger<RegisterUserService>>()));
+                
 
             services.AddScoped(sp => new LoginService(
                 sp.GetRequiredService<IUserRepository>(),
                 sp.GetRequiredService<IPasswordHasher>(),
-                sp.GetRequiredService<ITokenGenerator>()));
+                sp.GetRequiredService<ITokenGenerator>(),
+                sp.GetRequiredService<ILogger<LoginService>>()));
 
             return services;
         }

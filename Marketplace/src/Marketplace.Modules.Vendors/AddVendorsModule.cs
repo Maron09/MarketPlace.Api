@@ -2,6 +2,7 @@ using Marketplace.Modules.Vendors.Application;
 using Marketplace.Modules.Vendors.Infrastructure;
 using Marketplace.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 
 namespace Marketplace.Modules.Vendors
@@ -14,7 +15,8 @@ namespace Marketplace.Modules.Vendors
             
             services.AddScoped<IVendorRepository, VendorRepository>();
             services.AddScoped(sp => new VendorApplicationService(
-                sp.GetRequiredService<IVendorRepository>()));
+                sp.GetRequiredService<IVendorRepository>(),
+                sp.GetRequiredService<ILogger<VendorApplicationService>>()));
 
             return services;
 

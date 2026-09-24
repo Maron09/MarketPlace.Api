@@ -1,5 +1,6 @@
 using Marketplace.SharedKernel;
 using Marketplace.Modules.Catalog.Domain;
+using Microsoft.Extensions.Logging;
 
 
 namespace Marketplace.Modules.Catalog.Application
@@ -11,23 +12,29 @@ namespace Marketplace.Modules.Catalog.Application
         private readonly ICategoryRepository _categoryRepository;
         private readonly IProductCategoryRepository _productCategoryRepository;
         private readonly IProductRepository _productRepository;
+        private readonly ILogger<CategoryApplicationService> _logger;
 
-        internal CategoryApplicationService(ICategoryRepository categoryRepository, IProductCategoryRepository productCategoryRepository, IProductRepository productRepository)
+        internal CategoryApplicationService(ICategoryRepository categoryRepository, IProductCategoryRepository productCategoryRepository, IProductRepository productRepository, ILogger<CategoryApplicationService> logger)
         {
             _categoryRepository = categoryRepository;
             _productCategoryRepository = productCategoryRepository;
             _productRepository = productRepository;
+            _logger = logger;
         }
 
         public async Task<Result<Guid>> CreateAsync(string name, CancellationToken cancellationToken)
         {
             if (await _categoryRepository.NameExistsAsync(name.Trim(), excludingCategoryId: null, cancellationToken))
+            {
+                _logger.LogWarning("Rejected Category creation attempt for it already exists {Name}", name);
                 return Result<Guid>.Failure("A category with this name already exists.", ErrorType.Conflict);
+            }
             
             var category = Category.Create(name);
             await _categoryRepository.AddAsync(category, cancellationToken);
             await _categoryRepository.SaveChangesAsync(cancellationToken);
 
+            _logger.LogInformation("Category created successfully {CategoryId}", category.Id);
             return Result<Guid>.Success(category.Id);
         }
 

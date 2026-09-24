@@ -1,9 +1,11 @@
 using Amazon.S3;
 using Marketplace.Modules.Catalog.Application;
+using Marketplace.Modules.Catalog.Contracts;
 using Marketplace.Modules.Catalog.Infrastructure;
 using Marketplace.SharedKernel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 
@@ -33,17 +35,20 @@ namespace Marketplace.Modules.Catalog
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
             services.AddScoped<IProductImageRepository, ProductImageRepository>();
+            services.AddScoped<IProductCatalogReader, ProductCatalogReader>();
 
             services.AddScoped(sp => new CatalogApplicationService(
                 sp.GetRequiredService<IProductRepository>(),
                 sp.GetRequiredService<IProductImageRepository>(),
-                sp.GetRequiredService<IImageStorage>()
+                sp.GetRequiredService<IImageStorage>(),
+                sp.GetRequiredService<ILogger<CatalogApplicationService>>()
             ));
 
             services.AddScoped(sp => new CategoryApplicationService(
                 sp.GetRequiredService<ICategoryRepository>(),
                 sp.GetRequiredService<IProductCategoryRepository>(),
-                sp.GetRequiredService<IProductRepository>()
+                sp.GetRequiredService<IProductRepository>(),
+                sp.GetRequiredService<ILogger<CategoryApplicationService>>()
             ));
 
             return services;
