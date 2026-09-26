@@ -18,11 +18,13 @@ namespace Marketplace.Modules.Catalog.Api
     {
         private readonly CatalogApplicationService _catalogApplicationService;
         private readonly CategoryApplicationService _categoryApplicationService;
+        private readonly ICurrentUser _currentUser;
 
-        public ProductController(CatalogApplicationService catalogApplicationService, CategoryApplicationService categoryApplicationService)
+        public ProductController(CatalogApplicationService catalogApplicationService, CategoryApplicationService categoryApplicationService, ICurrentUser currentUser)
         {
             _catalogApplicationService = catalogApplicationService;
             _categoryApplicationService = categoryApplicationService;
+            _currentUser = currentUser;
         }
 
         [HttpGet]
@@ -44,7 +46,7 @@ namespace Marketplace.Modules.Catalog.Api
         public async Task<IActionResult> Create([FromBody] CreateProductRequestDto request, CancellationToken cancellationToken)
         {
             var productId = await _catalogApplicationService.CreateAsync(
-                new CreateProductRequest(GetAuthenticatedUserId(), request.Name, request.Description, request.Price), cancellationToken);
+                new CreateProductRequest(_currentUser.UserId, request.Name, request.Description, request.Price), cancellationToken);
             
             return StatusCode(StatusCodes.Status201Created, new { productId });
         }
@@ -54,7 +56,7 @@ namespace Marketplace.Modules.Catalog.Api
         public async Task<IActionResult> Update(Guid productId, [FromBody] UpdateProductRequestDto request, CancellationToken cancellationToken)
         {
             var result = await _catalogApplicationService.UpdateAsync(productId,
-            GetAuthenticatedUserId(), request.Name, request.Description, request.Price, cancellationToken);
+            _currentUser.UserId, request.Name, request.Description, request.Price, cancellationToken);
 
             return result.IsSuccess ? NoContent() : this.ToActionResult(result);
         }
@@ -63,7 +65,7 @@ namespace Marketplace.Modules.Catalog.Api
         [HttpPost("{productId:guid}/deactivate")]
         public async Task<IActionResult> Deactivate(Guid productId,CancellationToken cancellationToken)
         {
-            var result = await _catalogApplicationService.DeactivateAsync(productId, GetAuthenticatedUserId(), cancellationToken);
+            var result = await _catalogApplicationService.DeactivateAsync(productId, _currentUser.UserId, cancellationToken);
             return result.IsSuccess ? NoContent() : this.ToActionResult(result);
         }
 
@@ -71,7 +73,7 @@ namespace Marketplace.Modules.Catalog.Api
         [HttpPost("{productId:guid}/reactivate")]
         public async Task<IActionResult> Reactivate(Guid productId, CancellationToken cancellationToken)
         {
-            var result = await _catalogApplicationService.ReactivateAsync(productId, GetAuthenticatedUserId(), cancellationToken);
+            var result = await _catalogApplicationService.ReactivateAsync(productId, _currentUser.UserId, cancellationToken);
             return result.IsSuccess ? NoContent() : this.ToActionResult(result);
         }
 
@@ -79,14 +81,14 @@ namespace Marketplace.Modules.Catalog.Api
         [HttpGet("mine")]
         public async Task<IActionResult> GetMine([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
         {
-            var products = await _catalogApplicationService.GetByVendorIdAsync(GetAuthenticatedUserId(), page, pageSize, cancellationToken);
+            var products = await _catalogApplicationService.GetByVendorIdAsync(_currentUser.UserId, page, pageSize, cancellationToken);
             return Ok(products);
         }
         [Authorize(Roles = "Vendor")]
         [HttpPost("{productId:guid}/categories/{categoryId:guid}")]
         public async Task<IActionResult> AssignCategory(Guid productId, Guid categoryId, CancellationToken cancellationToken)
         {
-            var result = await _categoryApplicationService.AssignToProductAsync(productId, categoryId, GetAuthenticatedUserId(), cancellationToken);
+            var result = await _categoryApplicationService.AssignToProductAsync(productId, categoryId, _currentUser.UserId, cancellationToken);
             return result.IsSuccess ? NoContent() : this.ToActionResult(result);
         }
 
@@ -94,7 +96,7 @@ namespace Marketplace.Modules.Catalog.Api
         [HttpDelete("{productId:guid}/categories/{categoryId:guid}")]
         public async Task<IActionResult> RemoveCategory(Guid productId, Guid categoryId, CancellationToken cancellationToken)
         {
-            var result = await _categoryApplicationService.RemoveFromProductAsync(productId, categoryId, GetAuthenticatedUserId(), cancellationToken);
+            var result = await _categoryApplicationService.RemoveFromProductAsync(productId, categoryId, _currentUser.UserId, cancellationToken);
             return result.IsSuccess ? NoContent() : this.ToActionResult(result);
         }
 
@@ -111,7 +113,7 @@ namespace Marketplace.Modules.Catalog.Api
 
             var result = await _catalogApplicationService.AddImageAsync(
                 productId,
-                GetAuthenticatedUserId(),
+                _currentUser.UserId,
                 stream,
                 file.FileName,
                 file.Length,
@@ -121,10 +123,5 @@ namespace Marketplace.Modules.Catalog.Api
                 ? StatusCode(StatusCodes.Status201Created, new { imageId = result.Value })
                 : this.ToActionResult(result);
         }
-
-        private Guid GetAuthenticatedUserId()
-            => Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)
-                ?? throw new InvalidOperationException("Authenticated request missing sub claim."));
-
     }
 }

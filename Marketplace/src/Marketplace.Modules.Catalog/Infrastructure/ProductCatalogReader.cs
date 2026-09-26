@@ -23,6 +23,6 @@ internal sealed class ProductCatalogReader : IProductCatalogReader
         
         return product is null
             ? null
-            : new ProductSnapShotDto(product.Id, product.Name, product.Price, product.IsActive);
+            : new ProductSnapShotDto(product.Id, product.VendorId, product.Name, product.Price, product.IsActive);
     }
 }

@@ -7,3 +7,5 @@
 
   <!-- docker exec -it marketplace-postgres psql -U marketplace -d marketplace -c "\dt cart.*"
 docker exec -it marketplace-postgres psql -U marketplace -d marketplace -c "\d cart.\"CartItems\"" -->
+<!-- 
+dotnet add src/Marketplace.Modules.Inventory reference src/Marketplace.Modules.Catalog -->

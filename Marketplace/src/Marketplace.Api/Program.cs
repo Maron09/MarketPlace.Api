@@ -1,4 +1,3 @@
-// src/Marketplace.Api/Program.cs
 using System.Text;
 using Amazon.S3;
 using FluentValidation;
@@ -11,7 +10,9 @@ using Marketplace.Modules.Catalog.Infrastructure;
 using Marketplace.Modules.Identity;
 using Marketplace.Modules.Identity.Application;
 using Marketplace.Modules.Identity.Infrastructure;
+using Marketplace.Modules.Inventory;
 using Marketplace.Modules.Vendors;
+using Marketplace.SharedKernel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -36,6 +37,9 @@ try
     builder.Services.AddVendorsModule();
     builder.Services.AddCatalogModule(builder.Configuration);
     builder.Services.AddCartModule();
+    builder.Services.AddInventoryModule();
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
     builder.Services.AddDbContext<MarketplaceDbContext>(options =>
         options.UseNpgsql(

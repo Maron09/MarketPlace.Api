@@ -20,16 +20,18 @@ public sealed record UpdateQuantityRequestDto(int Quantity);
 public sealed class CartController : ControllerBase
 {
     private readonly CartApplicationService _cartApplicationService;
+    private readonly ICurrentUser _currentUser;
 
-    public CartController(CartApplicationService cartApplicationService)
+    public CartController(CartApplicationService cartApplicationService, ICurrentUser currentUser)
     {
         _cartApplicationService = cartApplicationService;
+        _currentUser = currentUser;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
     {
-        var cart = await _cartApplicationService.GetCartAsync(GetAuthenticatedUserId(), cancellationToken);
+        var cart = await _cartApplicationService.GetCartAsync(_currentUser.UserId, cancellationToken);
         return Ok(cart);
     }
 
@@ -37,7 +39,7 @@ public sealed class CartController : ControllerBase
     public async Task<IActionResult> AddItem([FromBody] AddItemRequestDto request, CancellationToken cancellationToken)
     {
         var result = await _cartApplicationService.AddItemAsync(
-            GetAuthenticatedUserId(), request.ProductId, request.Quantity, cancellationToken);
+            _currentUser.UserId, request.ProductId, request.Quantity, cancellationToken);
 
         return result.IsSuccess
             ? StatusCode(StatusCodes.Status201Created, new { cartItemId = result.Value })
@@ -48,7 +50,7 @@ public sealed class CartController : ControllerBase
     public async Task<IActionResult> UpdateQuantity(Guid cartItemId, [FromBody] UpdateQuantityRequestDto request, CancellationToken cancellationToken)
     {
         var result = await _cartApplicationService.UpdateItemQuantityAsync(
-            GetAuthenticatedUserId(), cartItemId, request.Quantity, cancellationToken);
+            _currentUser.UserId, cartItemId, request.Quantity, cancellationToken);
 
         return result.IsSuccess ? NoContent() : this.ToActionResult(result);
     }
@@ -56,11 +58,7 @@ public sealed class CartController : ControllerBase
     [HttpDelete("items/{cartItemId:guid}")]
     public async Task<IActionResult> RemoveItem(Guid cartItemId, CancellationToken cancellationToken)
     {
-        var result = await _cartApplicationService.RemoveItemAsync(GetAuthenticatedUserId(), cartItemId, cancellationToken);
+        var result = await _cartApplicationService.RemoveItemAsync(_currentUser.UserId, cartItemId, cancellationToken);
         return result.IsSuccess ? NoContent() : this.ToActionResult(result);
     }
-
-    private Guid GetAuthenticatedUserId()
-        => Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)
-            ?? throw new InvalidOperationException("Authenticated request missing sub claim."));
 }
