@@ -5,6 +5,7 @@
     <ProjectReference Include="..\Marketplace.Infrastructure.Shared\Marketplace.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\Marketplace.Modules.Catalog\Marketplace.Modules.Catalog.csproj" />
     <ProjectReference Include="..\Marketplace.Modules.Identity\Marketplace.Modules.Identity.csproj" />
+    <ProjectReference Include="..\Marketplace.Modules.Inventory\Marketplace.Modules.Inventory.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -11,6 +11,7 @@ using Marketplace.Modules.Identity;
 using Marketplace.Modules.Identity.Application;
 using Marketplace.Modules.Identity.Infrastructure;
 using Marketplace.Modules.Inventory;
+using Marketplace.Modules.Orders;
 using Marketplace.Modules.Vendors;
 using Marketplace.SharedKernel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -38,6 +39,7 @@ try
     builder.Services.AddCatalogModule(builder.Configuration);
     builder.Services.AddCartModule();
     builder.Services.AddInventoryModule();
+    builder.Services.AddOrdersModule();
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
@@ -72,6 +74,8 @@ try
         .AddApplicationPart(typeof(VendorModuleExtensions).Assembly)
         .AddApplicationPart(typeof(CatalogModuleExtensions).Assembly)
         .AddApplicationPart(typeof(CartModuleExtension).Assembly)
+        .AddApplicationPart(typeof(InventoryModuleExtensions).Assembly)
+        .AddApplicationPart(typeof(OrderModuleExtension).Assembly)
         .AddJsonOptions(options =>
             options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 

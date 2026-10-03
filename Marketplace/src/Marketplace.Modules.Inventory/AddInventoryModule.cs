@@ -1,5 +1,6 @@
 using Marketplace.Modules.Catalog.Contracts;
 using Marketplace.Modules.Inventory.Application;
+using Marketplace.Modules.Inventory.Contracts;
 using Marketplace.Modules.Inventory.Infrastructure;
 using Marketplace.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,9 @@ public static class InventoryModuleExtensions
     {
         services.AddSingleton<IModuleDbContextConfigurator, InventoryDbContextConfigurator>();
         services.AddScoped<IStockItemRepository, StockItemRepository>();
+        services.AddScoped<IStockReservation, StockReservation>();
+        services.AddScoped<IStockRelease, StockReservation>();
+        services.AddScoped<IStockAvailabilityReader, StockReservation>();
 
         services.AddScoped(sp => new InventoryApplicationService(
             sp.GetRequiredService<IStockItemRepository>(),

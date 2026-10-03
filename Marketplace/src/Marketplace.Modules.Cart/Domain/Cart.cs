@@ -72,4 +72,10 @@ internal sealed class Cart
         UpdatedAtUtc = DateTime.UtcNow;
         return true;
     }
+
+    public void ClearItems()
+    {
+        _items.Clear();
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
 }

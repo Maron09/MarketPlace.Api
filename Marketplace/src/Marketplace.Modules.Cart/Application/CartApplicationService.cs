@@ -1,4 +1,5 @@
 using Marketplace.Modules.Catalog.Contracts;
+using Marketplace.Modules.Inventory.Contracts;
 using Marketplace.SharedKernel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,14 @@ public sealed class CartApplicationService
     public sealed record CartDto(Guid Id, Guid UserId, IReadOnlyList<CartItemDto> Items, decimal Total);
     private readonly ICartRepository _cartRepository;
     private readonly IProductCatalogReader _productCatalogReader;
+    private readonly IStockAvailabilityReader _stockAvailabilityReader;
     private readonly ILogger<CartApplicationService> _logger;
 
-    internal CartApplicationService(ICartRepository cartRepository, IProductCatalogReader productCatalogReader, ILogger<CartApplicationService> logger)
+    internal CartApplicationService(ICartRepository cartRepository, IProductCatalogReader productCatalogReader, IStockAvailabilityReader stockAvailabilityReader, ILogger<CartApplicationService> logger)
     {
         _cartRepository = cartRepository;
         _productCatalogReader = productCatalogReader;
+        _stockAvailabilityReader = stockAvailabilityReader;
         _logger = logger;
     }
 
@@ -57,11 +60,23 @@ public sealed class CartApplicationService
         }
 
         var cart = await _cartRepository.GetByUserIdAsync(userId, cancellationToken);
+        
         var isNewCart = cart is null;
         if (cart is null)
         {
             cart = Domain.Cart.Create(userId);
             await _cartRepository.AddAsync(cart, cancellationToken);
+        }
+
+        var existingItemQuantity = cart.Items.FirstOrDefault(i => i.ProductId == productId)?.Quantity ?? 0;
+        var totalDesiredQuantity = existingItemQuantity + quantity;
+
+        var availableQuantity = await _stockAvailabilityReader.GetAvailableQuantityAsync(productId, cancellationToken);
+        if (totalDesiredQuantity > availableQuantity)
+        {
+            return Result<Guid>.Failure(
+                $"Only {availableQuantity} unit(s) of {product.Name} available.",
+                ErrorType.Conflict);
         }
 
         var item = cart.AddItem(product.ProductId, product.Name, product.Price, quantity);
